@@ -1,0 +1,53 @@
+{% extends 'academic_core/base.html' %}
+{% block title %}Enroll Student{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h3 class="card-title mb-4">Enroll Student</h3>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label for="{{ form.student.id_for_label }}" class="form-label">Student</label>
+          {{ form.student }}
+          {% if form.student.errors %}<div class="text-danger small mt-1">{{ form.student.errors }}</div>{% endif %}
+        </div>
+
+        <div class="col-md-6">
+          <label for="{{ form.tuition_class.id_for_label }}" class="form-label">Tuition class</label>
+          {{ form.tuition_class }}
+          {% if form.tuition_class.errors %}<div class="text-danger small mt-1">{{ form.tuition_class.errors }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label class="form-label">Start date</label>
+          {{ form.start_date }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">End date</label>
+          {{ form.end_date }}
+        </div>
+      </div>
+
+      <div class="mb-3 form-check">
+        {{ form.active }} <label class="form-check-label ms-1" for="{{ form.active.id_for_label }}">Active</label>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Fee override</label>
+        {{ form.fee_override }}
+      </div>
+
+      <div>
+        <button class="btn btn-primary">Enroll</button>
+        <a class="btn btn-secondary" href="{% url 'academic_core:student_list' %}">Back to students</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

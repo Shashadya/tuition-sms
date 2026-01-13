@@ -1,0 +1,42 @@
+{% extends "academic_core/base.html" %}
+{% block title %}Cannot Delete Subject{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h4 class="text-danger">Cannot delete subject — assignments exist</h4>
+
+    <p>The subject <strong>{{ object }}</strong> has the following assignments:</p>
+
+    <ul class="list-group mb-3">
+      {% for d in dependents %}
+        <li class="list-group-item">
+          {{ d.assign_id }} — {{ d.teacher.first_name }} {{ d.teacher.last_name }} ({{ d.start_date }})
+        </li>
+      {% endfor %}
+    </ul>
+
+    {% if other_subjects %}
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Reassign assignments to</label>
+          <select name="reassign_to" class="form-select" required>
+            <option value="">-- select subject --</option>
+            {% for s in other_subjects %}
+              <option value="{{ s.pk }}">{{ s.subject_id }} — {{ s.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Reassign assignments & delete subject</button>
+        <a href="{% url 'academic_core:subject_list' %}" class="btn btn-secondary">Cancel</a>
+      </form>
+    {% else %}
+      <div class="alert alert-warning">No other subjects exist to reassign to. Create another subject first or delete assignments manually.</div>
+      <a href="{% url 'academic_core:subject_create' %}" class="btn btn-primary">Create Subject</a>
+      <a href="{% url 'academic_core:subject_list' %}" class="btn btn-secondary">Back</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

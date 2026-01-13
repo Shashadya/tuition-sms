@@ -1,0 +1,22 @@
+{# templates/accounts/cardmarker_confirm_delete.html #}
+{% extends 'academic_core/base.html' %}
+{% block title %}Confirm delete{% endblock %}
+
+{% block content %}
+<h3>Confirm delete</h3>
+
+<p>Are you sure you want to delete card marker <strong>{{ marker.username }}</strong>?</p>
+
+{# Extra safeguard: show message if current user tried to navigate here for self-delete #}
+{% if request.user.pk == marker.pk %}
+  <div class="alert alert-warning">
+    You cannot delete your own account from this interface.
+  </div>
+  <a class="btn btn-secondary" href="{% url 'accounts:cardmarker_list' %}">Back</a>
+{% else %}
+  <form method="post">{% csrf_token %}
+    <button class="btn btn-danger" type="submit">Yes, delete</button>
+    <a class="btn btn-secondary" href="{% url 'accounts:cardmarker_list' %}">Cancel</a>
+  </form>
+{% endif %}
+{% endblock %}

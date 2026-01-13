@@ -1,0 +1,62 @@
+{% extends "academic_core/base.html" %}
+{% block title %}Students{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3>Students</h3>
+
+  <div class="d-flex gap-2">
+    {% if request.user.is_admin or request.user.is_staff_user %}
+      <a class="btn btn-primary" href="{% url 'academic_core:student_create' %}"><i class="fas fa-plus-circle me-1"></i> Add Student</a>
+    {% endif %}
+    <a class="btn btn-outline-secondary" href="{% url 'academic_core:index' %}">Dashboard</a>
+  </div>
+</div>
+
+<table class="table table-striped table-hover">
+  <thead class="table-light">
+    <tr>
+      <th>Reg No</th>
+      <th>Name</th>
+      <th>Class</th>
+      <th>Phone</th>
+      <th>Joined</th>
+      <th>Active</th>
+      <th style="width:220px">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for s in students %}
+    <tr>
+      <td><a href="{% url 'academic_core:student_detail' s.pk %}">{{ s.reg_no }}</a></td>
+      <td>{{ s.first_name }} {{ s.last_name }}</td>
+      <td>{% if s.current_class %}{{ s.current_class.class_id }} — {{ s.current_class.name }}{% else %}—{% endif %}</td>
+      <td>{{ s.phone|default:"—" }}</td>
+      <td>{{ s.joined_date|date:"Y-m-d" }}</td>
+      <td>{% if s.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-danger">Inactive</span>{% endif %}</td>
+      <td>
+        <div class="d-flex gap-1">
+          <a class="btn btn-sm btn-outline-primary" href="{% url 'academic_core:student_detail' s.pk %}"><i class="fas fa-eye"></i> View</a>
+
+          {% if request.user.is_admin or request.user.is_staff_user %}
+          <a class="btn btn-sm btn-outline-secondary" href="{% url 'academic_core:student_update' s.pk %}"><i class="fas fa-edit"></i> Edit</a>
+          {% endif %}
+
+          {% if request.user.is_admin %}
+          <form method="post" action="{% url 'academic_core:student_delete' s.pk %}" style="display:inline" onsubmit="return confirm('Delete student {{ s.first_name }} {{ s.last_name }} ({{ s.reg_no }})?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i> Delete</button>
+          </form>
+          {% endif %}
+        </div>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="7" class="text-center">No students found.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

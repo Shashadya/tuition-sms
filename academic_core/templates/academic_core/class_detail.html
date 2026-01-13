@@ -1,0 +1,118 @@
+{% extends "academic_core/base.html" %}
+{% block title %}Class: {{ object.class_id }}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-8">
+    <h3 class="mb-3">{{ object.class_id }} — {{ object.name }}</h3>
+
+    <table class="table table-bordered bg-white">
+      <tbody>
+        <tr>
+          <th width="30%">Class ID</th>
+          <td>{{ object.class_id }}</td>
+        </tr>
+        <tr>
+          <th>Name</th>
+          <td>{{ object.name }}</td>
+        </tr>
+        <tr>
+          <th>Description</th>
+          <td>{{ object.description|linebreaksbr|default:"—" }}</td>
+        </tr>
+        <tr>
+          <th>Mode</th>
+          <td>{{ object.get_class_mode_display }}</td>
+        </tr>
+        <tr>
+          <th>Fee type</th>
+          <td>{{ object.get_fee_type_display }}</td>
+        </tr>
+        <tr>
+          <th>Capacity</th>
+          <td>{{ object.capacity }}</td>
+        </tr>
+        <tr>
+          <th>Active</th>
+          <td>{% if object.active %}<span class="text-success">Yes</span>{% else %}<span class="text-danger">No</span>{% endif %}</td>
+        </tr>
+        <tr>
+          <th>Assigned teacher</th>
+          <td>
+            {% if object.class_teacher %}
+              <a href="{% url 'academic_core:teacher_detail' object.class_teacher.pk %}">
+                {{ object.class_teacher.title }} {{ object.class_teacher.first_name }} {{ object.class_teacher.last_name }}
+              </a>
+            {% else %}
+              —
+            {% endif %}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Enrolled students -->
+    <h5 class="mt-4">Enrolled students <small class="text-muted">({{ object.students.count }})</small></h5>
+    <div class="table-responsive">
+      <table class="table table-sm table-striped">
+        <thead>
+          <tr>
+            <th>Reg No</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Joined</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in object.students.all %}
+            <tr>
+              <td><a href="{% url 'academic_core:student_detail' s.pk %}">{{ s.reg_no }}</a></td>
+              <td>{{ s.first_name }} {{ s.last_name }}</td>
+              <td>{{ s.phone|default:"—" }}</td>
+              <td>{{ s.joined_date|date:"Y-m-d" }}</td>
+              <td>
+                {% if request.user.is_admin or request.user.is_staff_user %}
+                  <a class="btn btn-sm btn-outline-secondary" href="{% url 'academic_core:student_update' s.pk %}">Edit</a>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5" class="text-center">No students enrolled in this class.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card mb-3">
+      <div class="card-body">
+        <h6 class="card-title">Quick actions</h6>
+        {% if request.user.is_admin or request.user.is_staff_user %}
+          <a class="btn btn-sm btn-primary mb-2 w-100" href="{% url 'academic_core:class_update' object.pk %}">Edit class</a>
+        {% endif %}
+
+        {% if request.user.is_admin %}
+          <form method="post" action="{% url 'academic_core:class_delete' object.pk %}" onsubmit="return confirm('Delete class {{ object.name }}?');">
+            {% csrf_token %}
+            <button class="btn btn-sm btn-danger w-100">Delete class</button>
+          </form>
+          <a class="btn btn-sm btn-outline-secondary mt-2 w-100" href="{% url 'academic_core:student_create' %}">Add student</a>
+        {% endif %}
+
+        <a class="btn btn-sm btn-secondary mt-2 w-100" href="{% url 'academic_core:class_list' %}">Back to classes</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Class summary</h6>
+        <p><strong>Students:</strong> {{ object.students.count }}</p>
+        <p><strong>Active:</strong> {% if object.active %}Yes{% else %}No{% endif %}</p>
+        <p><strong>Teacher:</strong> {% if object.class_teacher %}{{ object.class_teacher.first_name }} {{ object.class_teacher.last_name }}{% else %}—{% endif %}</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

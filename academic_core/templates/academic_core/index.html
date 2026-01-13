@@ -1,0 +1,26 @@
+<!-- academic_core/templates/academic_core/index.html -->
+{% extends 'academic_core/base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1 class="mb-3">Core Dashboard</h1>
+<div class="row mb-4">
+  <div class="col-md-4">
+    <div class="card p-3">
+      <h5>Total Students</h5>
+      <p class="display-6">{{ total_students }}</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3">
+      <h5>Total Teachers</h5>
+      <p class="display-6">{{ total_teachers }}</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3">
+      <h5>Total Classes</h5>
+      <p class="display-6">{{ total_classes }}</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,241 @@
+{% extends 'academic_core/base.html' %}
+{% block title %}{% if form.instance.pk %}Edit Student{% else %}Add Student{% endif %}{% endblock %}
+
+{% block content %}
+{% if form.non_field_errors %}
+  <div class="alert alert-danger">
+    {% for e in form.non_field_errors %}
+      <div>{{ e }}</div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<h3 class="mb-3">{% if form.instance.pk %}Edit Student{% else %}Add Student{% endif %}</h3>
+
+<form method="post" enctype="multipart/form-data" novalidate>
+  {% csrf_token %}
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="mb-3">
+        <label class="form-label">Profile Photo</label>
+        {{ form.profile_photo }}
+        {% if form.profile_photo.errors %}<div class="text-danger small">{{ form.profile_photo.errors }}</div>{% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label for="id_reg_no" class="form-label">Registration Number</label>
+        {{ form.reg_no }}
+        {% if last_reg_no %}
+          <small class="text-muted">Previous Reg No: <strong>{{ last_reg_no }}</strong></small>
+        {% endif %}
+        {% if form.reg_no.errors %}<div class="text-danger small">{{ form.reg_no.errors }}</div>{% endif %}
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">First name</label>
+          {{ form.first_name }}
+          {% if form.first_name.errors %}<div class="text-danger small">{{ form.first_name.errors }}</div>{% endif %}
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Last name</label>
+          {{ form.last_name }}
+          {% if form.last_name.errors %}<div class="text-danger small">{{ form.last_name.errors }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Date of birth</label>
+          {{ form.dob }}
+          {% if form.dob.errors %}<div class="text-danger small">{{ form.dob.errors }}</div>{% endif %}
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Joined date</label>
+          {{ form.joined_date }}
+          {% if form.joined_date.errors %}<div class="text-danger small">{{ form.joined_date.errors }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">NIC</label>
+        {{ form.nic }}
+        {% if form.nic.errors %}<div class="text-danger small">{{ form.nic.errors }}</div>{% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">School</label>
+        {{ form.school }}
+        {% if form.school.errors %}<div class="text-danger small">{{ form.school.errors }}</div>{% endif %}
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Gender</label>
+          {{ form.gender }}
+          {% if form.gender.errors %}<div class="text-danger small">{{ form.gender.errors }}</div>{% endif %}
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Current class</label>
+          {{ form.current_class }}
+          {% if form.current_class.errors %}<div class="text-danger small">{{ form.current_class.errors }}</div>{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="mb-3">
+        <label class="form-label">Address</label>
+        {{ form.address }}
+        {% if form.address.errors %}<div class="text-danger small">{{ form.address.errors }}</div>{% endif %}
+      </div>
+
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Phone</label>
+          {{ form.phone }}
+          {% if form.phone.errors %}<div class="text-danger small">{{ form.phone.errors }}</div>{% endif %}
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">WhatsApp</label>
+          {{ form.whatsapp }}
+          {% if form.whatsapp.errors %}<div class="text-danger small">{{ form.whatsapp.errors }}</div>{% endif %}
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Email</label>
+          {{ form.email }}
+          {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div class="mb-3 form-check">
+        {{ form.is_active }} <label class="form-check-label" for="{{ form.is_active.id_for_label }}">Active</label>
+      </div>
+
+      <div class="mb-3">
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'academic_core:enrollment_create' %}">Quick: Enroll student</a>
+      </div>
+
+      <div id="class-info" class="mt-2 text-muted small"></div>
+    </div>
+  </div>
+
+  <hr>
+  <h5>Guardian(s)</h5>
+  <p class="text-muted small">Add at least one guardian. Mark one guardian as primary.</p>
+
+  {% if guardian_formset %}
+    {{ guardian_formset.management_form }}
+
+    {# show any non-form errors for the formset #}
+    {% if guardian_formset.non_form_errors %}
+      <div class="alert alert-danger">
+        {% for e in guardian_formset.non_form_errors %}
+          <div>{{ e }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% for gf in guardian_formset.forms %}
+      {# Important: render hidden fields (includes the 'id' hidden input) #}
+      {% for hidden in gf.hidden_fields %}
+        {{ hidden }}
+      {% endfor %}
+
+      <div class="card mb-3">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <h6>Guardian {{ forloop.counter }}</h6>
+            {% if guardian_formset.can_delete %}
+              <div class="form-check">
+                {{ gf.DELETE }} <label class="form-check-label ms-1">Delete</label>
+              </div>
+            {% endif %}
+          </div>
+
+          {% if gf.non_field_errors %}
+            <div class="alert alert-danger small">
+              {% for e in gf.non_field_errors %}
+                <div>{{ e }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <div class="row">
+            <div class="col-md-6 mb-2">
+              <label class="form-label">Name</label>
+              {{ gf.name }}
+              {% if gf.name.errors %}<div class="text-danger small">{{ gf.name.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-6 mb-2">
+              <label class="form-label">Relationship</label>
+              {{ gf.relationship }}
+              {% if gf.relationship.errors %}<div class="text-danger small">{{ gf.relationship.errors }}</div>{% endif %}
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4 mb-2">{{ gf.phone }}{% if gf.phone.errors %}<div class="text-danger small">{{ gf.phone.errors }}</div>{% endif %}</div>
+            <div class="col-md-4 mb-2">{{ gf.whatsapp }}{% if gf.whatsapp.errors %}<div class="text-danger small">{{ gf.whatsapp.errors }}</div>{% endif %}</div>
+            <div class="col-md-4 mb-2">{{ gf.email }}{% if gf.email.errors %}<div class="text-danger small">{{ gf.email.errors }}</div>{% endif %}</div>
+          </div>
+
+          <div class="form-check">
+            {{ gf.is_primary }} <label class="form-check-label ms-1">Primary guardian</label>
+            {% if gf.is_primary.errors %}<div class="text-danger small">{{ gf.is_primary.errors }}</div>{% endif %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="mt-3">
+    <button class="btn btn-primary">Save</button>
+    <a class="btn btn-secondary" href="{% url 'academic_core:student_list' %}">Cancel</a>
+  </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const select = document.querySelector('select[name="current_class"]');
+  const infoBox = document.getElementById('class-info');
+
+  async function fetchClass(id) {
+    if (!id) { infoBox.innerHTML = ''; return; }
+    const url = `/api/v1/classes/${id}/`;
+    try {
+      const r = await fetch(url);
+      if (!r.ok) { infoBox.innerHTML = ''; return; }
+      const data = await r.json();
+      const teacher = data.class_teacher;
+      const teacherName = teacher ? ((teacher.first_name || '') + ' ' + (teacher.last_name || '')).trim() : '—';
+      const classId = data.class_id || '';
+      const className = data.name || '';
+      infoBox.innerHTML = `<small>Selected class: <strong>${classId} ${className}</strong><br>Teacher: <strong>${teacherName}</strong></small>`;
+    } catch(e) {
+      infoBox.innerHTML = '';
+    }
+  }
+
+  if (select) {
+    select.addEventListener('change', () => fetchClass(select.value));
+    fetchClass(select.value);
+  }
+
+  const last = "{{ last_reg_no|default:'' }}";
+  const regInput = document.getElementById('id_reg_no');
+  if (last && regInput && !regInput.value) {
+    const m = last.match(/^([^\d]*)(\d+)$/);
+    if (m) {
+      const prefix = m[1] || '';
+      const numStr = m[2];
+      const nextNum = String(parseInt(numStr,10)+1).padStart(numStr.length,'0');
+      regInput.value = prefix + nextNum;
+    } else {
+      regInput.value = last + '-1';
+    }
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "academic_core/base.html" %}
+{% block title %}Confirm Delete Class{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h4 class="card-title text-danger">Confirm delete class</h4>
+    <p>Are you sure you want to permanently delete the following class?</p>
+
+    <table class="table table-sm">
+      <tr><th>Class ID</th><td>{{ object.class_id }}</td></tr>
+      <tr><th>Name</th><td>{{ object.name }}</td></tr>
+      <tr><th>Teacher</th>
+        <td>{% if object.class_teacher %}{{ object.class_teacher.first_name }} {{ object.class_teacher.last_name }}{% else %}—{% endif %}</td>
+      </tr>
+      <tr><th>Active</th><td>{% if object.active %}Yes{% else %}No{% endif %}</td></tr>
+    </table>
+
+    <form method="post" class="d-inline">{% csrf_token %}
+      <button type="submit" class="btn btn-danger">Yes — delete class</button>
+    </form>
+    <a href="{% url 'academic_core:class_detail' object.pk %}" class="btn btn-secondary">Cancel</a>
+  </div>
+</div>
+{% endblock %}

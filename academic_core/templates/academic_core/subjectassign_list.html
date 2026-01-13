@@ -1,0 +1,91 @@
+{% extends "academic_core/base.html" %}
+{% block title %}Subject Assignments{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="mb-0">Subject assignments</h3>
+
+  <div class="text-end">
+    {% comment %} show the most-recent assign id as a tiny hint (assignments is ordered in view) {% endcomment %}
+    {% if assignments and assignments|length > 0 %}
+      <div class="small text-muted mb-1">Latest Assign ID: <strong>{{ assignments.0.assign_id }}</strong></div>
+    {% endif %}
+    {% if request.user.is_staff_user or request.user.is_admin %}
+      <a class="btn btn-primary" href="{% url 'academic_core:subjectassign_create' %}">New assignment</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="table-responsive">
+<table class="table table-striped align-middle">
+  <thead>
+    <tr>
+      <th>Assign ID</th>
+      <th>Subject</th>
+      <th>Teacher</th>
+      <th>Start</th>
+      <th>End</th>
+      <th>Notes</th>
+      <th class="text-end">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for a in assignments %}
+      <tr>
+        <td class="align-middle">{{ a.assign_id|default:"—" }}</td>
+
+        <td class="align-middle">
+          {% if a.subject %}
+            <a href="{% url 'academic_core:subject_update' a.subject.pk %}">
+              {{ a.subject.subject_id }} — {{ a.subject.name }}
+            </a>
+          {% else %}
+            &mdash;
+          {% endif %}
+        </td>
+
+        <td class="align-middle">
+          {% if a.teacher %}
+            <a href="{% url 'academic_core:teacher_detail' a.teacher.pk %}">
+              {{ a.teacher.first_name }} {{ a.teacher.last_name }}
+            </a>
+          {% else %}
+            &mdash;
+          {% endif %}
+        </td>
+
+        <td class="align-middle">{{ a.start_date|default:"—" }}</td>
+        <td class="align-middle">{{ a.end_date|default:"—" }}</td>
+        <td class="align-middle">{{ a.notes|truncatechars:80|default:"—" }}</td>
+
+        <td class="align-middle text-end">
+          <div class="btn-group btn-group-sm" role="group" aria-label="assignment actions">
+            {% if request.user.is_staff_user or request.user.is_admin %}
+              {# Copy -> opens create view with subject pre-selected #}
+              {% if a.subject %}
+                <a class="btn btn-outline-secondary" href="{% url 'academic_core:subjectassign_create' %}?subject={{ a.subject.pk }}" title="Copy assignment (preselect subject)">
+                  Copy
+                </a>
+              {% else %}
+                <a class="btn btn-outline-secondary disabled" href="#" tabindex="-1" aria-disabled="true">Copy</a>
+              {% endif %}
+
+              <a class="btn btn-outline-primary" href="{% url 'academic_core:subjectassign_update' a.pk %}" title="Edit">Edit</a>
+            {% endif %}
+
+            {% if request.user.is_admin %}
+              <form method="post" action="{% url 'academic_core:subjectassign_delete' a.pk %}" style="display:inline" onsubmit="return confirm('Delete assignment {{ a.assign_id }}?');">
+                {% csrf_token %}
+                <button class="btn btn-danger" type="submit">Delete</button>
+              </form>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="7" class="text-center">No assignments found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

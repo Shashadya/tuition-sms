@@ -1,0 +1,169 @@
+{% extends "academic_core/base.html" %}
+{% block title %}Student Details{% endblock %}
+
+{% block content %}
+<h3 class="mb-3">Student Details</h3>
+
+<div class="row">
+    <!-- Profile Photo -->
+    <div class="col-md-3 mb-3">
+        {% if student.profile_photo %}
+            <img src="{{ student.profile_photo.url }}" alt="Profile Photo" class="img-fluid rounded shadow-sm">
+        {% else %}
+            <div class="p-4 bg-secondary text-white text-center rounded shadow-sm">No Photo</div>
+        {% endif %}
+    </div>
+
+    <!-- Student Information -->
+    <div class="col-md-9">
+        <table class="table table-bordered bg-white">
+            <tbody>
+                <tr>
+                    <th width="30%">Student ID</th>
+                    <td>{{ student.reg_no }}</td>
+                </tr>
+                <tr>
+                    <th>Name</th>
+                    <td>{{ student.first_name }} {{ student.last_name }}</td>
+                </tr>
+                <tr>
+                    <th>Date of Birth</th>
+                    <td>{{ student.dob|default:"—" }}</td>
+                </tr>
+                <tr>
+                    <th>Joined Date</th>
+                    <td>{{ student.joined_date|date:"Y-m-d" }}</td>
+                </tr>
+                <tr>
+                    <th>NIC</th>
+                    <td>{{ student.nic|default:"—" }}</td>
+                </tr>
+                <tr>
+                    <th>School</th>
+                    <td>{{ student.school|default:"—" }}</td>
+                </tr>
+                <tr>
+                    <th>Gender</th>
+                    <td>{{ student.get_gender_display|default:"—" }}</td>
+                </tr>
+                <tr>
+                    <th>Current Class</th>
+                    <td>
+                        {% if student.current_class %}
+                            {{ student.current_class.class_id }} — {{ student.current_class.name }}
+                            <br><small>Teacher:
+                                {% if student.current_class.class_teacher %}
+                                    {{ student.current_class.class_teacher.first_name }} {{ student.current_class.class_teacher.last_name }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </small>
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Status</th>
+                    <td>{% if student.is_active %}<span class="text-success">Active</span>{% else %}<span class="text-danger">Inactive</span>{% endif %}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Action buttons -->
+        <div class="d-flex gap-2 mt-2">
+            <a href="{% url 'academic_core:student_list' %}" class="btn btn-secondary">Back to Student List</a>
+
+            {% if request.user.is_admin or request.user.is_staff_user %}
+            <a href="{% url 'academic_core:student_update' student.pk %}" class="btn btn-outline-primary">Edit</a>
+            {% endif %}
+
+            {% if request.user.is_admin %}
+            <form method="post" action="{% url 'academic_core:student_delete' student.pk %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete {{ student.first_name }} {{ student.last_name }} ({{ student.reg_no }})?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+<!-- Contact Information -->
+<h4 class="mt-4">Contact Information</h4>
+<table class="table table-bordered bg-white">
+    <tbody>
+        <tr>
+            <th width="30%">Address</th>
+            <td>{{ student.address|linebreaksbr|default:"—" }}</td>
+        </tr>
+        <tr>
+            <th>Phone</th>
+            <td>{{ student.phone|default:"—" }}</td>
+        </tr>
+        <tr>
+            <th>WhatsApp</th>
+            <td>{{ student.whatsapp|default:"—" }}</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>{{ student.email|default:"—" }}</td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- Guardian Information -->
+<h4 class="mt-4">Parent / Guardian Information</h4>
+<table class="table table-bordered bg-white">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Relationship</th>
+            <th>Phone</th>
+            <th>WhatsApp</th>
+            <th>Email</th>
+            <th>Primary</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for g in student.guardians.all %}
+        <tr>
+            <td>{{ g.name }}</td>
+            <td>{{ g.get_relationship_display }}</td>
+            <td>{{ g.phone|default:"—" }}</td>
+            <td>{{ g.whatsapp|default:"—" }}</td>
+            <td>{{ g.email|default:"—" }}</td>
+            <td class="text-center">{% if g.is_primary %}✔{% else %}—{% endif %}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center">No guardian information added.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Enrollment History -->
+<h4 class="mt-4">Enrollment History</h4>
+<table class="table table-bordered bg-white">
+    <thead>
+        <tr>
+            <th>Class</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Active</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for e in student.enrollments.all %}
+        <tr>
+            <td>{{ e.tuition_class.class_id }} — {{ e.tuition_class.name }}</td>
+            <td>{{ e.start_date|date:"Y-m-d" }}</td>
+            <td>{{ e.end_date|default:"—" }}</td>
+            <td class="text-center">{% if e.active %}✔{% else %}—{% endif %}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="text-center">No enrollment history</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

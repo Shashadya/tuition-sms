@@ -1,0 +1,62 @@
+{% extends "academic_core/base.html" %}
+{% block title %}Cannot Delete Teacher{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h4 class="text-danger">Cannot delete teacher — dependent records found</h4>
+
+    <p>The teacher <strong>{{ object }}</strong> cannot be deleted because there are related records:</p>
+
+    {% if dependent_classes %}
+      <h5>Classes taught</h5>
+      <ul class="list-group mb-3">
+        {% for c in dependent_classes %}
+          <li class="list-group-item">{{ c.class_id }} — {{ c.name }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% if dependent_assignments %}
+      <h5>Subject assignments</h5>
+      <ul class="list-group mb-3">
+        {% for a in dependent_assignments %}
+          <li class="list-group-item">{{ a.assign_id }} — {{ a.subject.name }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% if other_teachers %}
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Reassign classes to</label>
+          <select name="reassign_classes_to" class="form-select">
+            <option value="">-- no change --</option>
+            {% for t in other_teachers %}
+              <option value="{{ t.pk }}">{{ t.first_name }} {{ t.last_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Reassign subject assignments to</label>
+          <select name="reassign_assignments_to" class="form-select">
+            <option value="">-- no change --</option>
+            {% for t in other_teachers %}
+              <option value="{{ t.pk }}">{{ t.first_name }} {{ t.last_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Reassign selected & delete teacher</button>
+        <a href="{% url 'academic_core:teacher_list' %}" class="btn btn-secondary">Cancel</a>
+      </form>
+    {% else %}
+      <div class="alert alert-warning">No other teachers exist to reassign to. Create another teacher first or clear dependent records manually.</div>
+      <a href="{% url 'academic_core:teacher_create' %}" class="btn btn-primary">Create Teacher</a>
+      <a href="{% url 'academic_core:teacher_list' %}" class="btn btn-secondary">Back</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

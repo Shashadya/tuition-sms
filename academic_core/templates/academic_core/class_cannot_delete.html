@@ -1,0 +1,46 @@
+{% extends "academic_core/base.html" %}
+{% block title %}Cannot Delete Class{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h4 class="card-title text-danger">Cannot delete class — students still assigned</h4>
+
+    <p>
+      The class <strong>{{ object.class_id }} — {{ object.name }}</strong> cannot be deleted because the following students
+      are currently assigned to it:
+    </p>
+
+    <ul class="list-group mb-3">
+      {% for s in dependents %}
+        <li class="list-group-item">
+          {{ s.reg_no }} — {{ s.first_name }} {{ s.last_name }}
+        </li>
+      {% endfor %}
+    </ul>
+
+    {% if other_classes %}
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="reassign_to" class="form-label">Select target class to move these students to</label>
+          <select name="reassign_to" id="reassign_to" class="form-select" required>
+            <option value="">-- select target class --</option>
+            {% for oc in other_classes %}
+              <option value="{{ oc.pk }}">{{ oc.class_id }} — {{ oc.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Reassign students & delete class</button>
+        <a href="{% url 'academic_core:class_list' %}" class="btn btn-secondary">Cancel</a>
+      </form>
+    {% else %}
+      <div class="alert alert-warning">
+        There are no other classes to reassign these students to. Please create another class first or manually update the students' current class.
+      </div>
+      <a href="{% url 'academic_core:class_create' %}" class="btn btn-primary">Create new class</a>
+      <a href="{% url 'academic_core:class_list' %}" class="btn btn-secondary">Back to classes</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

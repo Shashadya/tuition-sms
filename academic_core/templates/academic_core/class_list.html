@@ -1,0 +1,59 @@
+{% extends 'academic_core/base.html' %}
+{% block title %}Classes{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3>Classes</h3>
+  {% if request.user.is_admin or request.user.is_staff_user %}
+    <a class="btn btn-primary" href="{% url 'academic_core:class_create' %}">Add Class</a>
+  {% endif %}
+</div>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Class ID</th>
+      <th>Name</th>
+      <th>Teacher</th>
+      <th>Mode</th>
+      <th>Students</th>
+      <th>Active</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for c in classes %}
+      <tr>
+        <td><a href="{% url 'academic_core:class_detail' c.pk %}">{{ c.class_id }}</a></td>
+        <td>{{ c.name }}</td>
+        <td>
+          {% if c.class_teacher %}
+            <a href="{% url 'academic_core:teacher_detail' c.class_teacher.pk %}">
+              {{ c.class_teacher.first_name }} {{ c.class_teacher.last_name }}
+            </a>
+          {% else %}
+            &mdash;
+          {% endif %}
+        </td>
+        <td>{{ c.get_class_mode_display }}</td>
+        <td>
+          <span class="badge badge-pill badge-info">{{ c.students.count }}</span>
+        </td>
+        <td>{% if c.active %}Yes{% else %}No{% endif %}</td>
+        <td>
+          {% if request.user.is_admin or request.user.is_staff_user %}
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'academic_core:class_update' c.pk %}">Edit</a>
+          {% endif %}
+
+          {% if request.user.is_admin %}
+            <a class="btn btn-sm btn-danger" href="{% url 'academic_core:class_detail' c.pk %}">Delete</a>
+            {# Using detail->delete flow so admin sees reassign UI if needed #}
+          {% endif %}
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="7">No classes found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

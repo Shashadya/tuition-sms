@@ -1,0 +1,106 @@
+{% extends "academic_core/base.html" %}
+{% block title %}Assign Subject{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body">
+
+    <h3 class="card-title mb-3">
+      {% if form.instance.pk %}
+        Edit Subject Assignment
+      {% else %}
+        Assign Subject to Teacher
+      {% endif %}
+    </h3>
+
+    {% if last_assign_id %}
+      <div class="mb-2">
+        <small class="text-muted">Previous Assign ID: <strong>{{ last_assign_id }}</strong></small>
+      </div>
+    {% endif %}
+
+    <!-- Display non-field errors -->
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <!-- Assign ID -->
+      <div class="mb-3">
+        <label class="form-label">Assign ID</label>
+        {{ form.assign_id }}
+        {% if form.assign_id.errors %}
+          <div class="text-danger small">{{ form.assign_id.errors }}</div>
+        {% endif %}
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Subject</label>
+          {{ form.subject }}
+          {% if form.subject.errors %}
+            <div class="text-danger small">{{ form.subject.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Teacher</label>
+          {{ form.teacher }}
+          {% if form.teacher.errors %}
+            <div class="text-danger small">{{ form.teacher.errors }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Start Date</label>
+          {{ form.start_date }}
+          {% if form.start_date.errors %}
+            <div class="text-danger small">{{ form.start_date.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">End Date</label>
+          {{ form.end_date }}
+          {% if form.end_date.errors %}
+            <div class="text-danger small">{{ form.end_date.errors }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Notes</label>
+        {{ form.notes }}
+        {% if form.notes.errors %}
+          <div class="text-danger small">{{ form.notes.errors }}</div>
+        {% endif %}
+      </div>
+
+      <div class="mt-3">
+        <button class="btn btn-primary">Save</button>
+        <a class="btn btn-secondary" href="{% url 'academic_core:subjectassign_list' %}">Cancel</a>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<script>
+/* Auto-select subject when using ?subject=<id> in URL */
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  const sub = params.get('subject');
+
+  if (sub) {
+    const sel = document.querySelector('select[name="subject"]');
+    if (sel) sel.value = sub;
+  }
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends "academic_core/base.html" %}
+{% block title %}{% if form.instance.pk %}Edit Teacher{% else %}Add Teacher{% endif %}{% endblock %}
+
+{% block content %}
+<h3 class="mb-3">{% if form.instance.pk %}Edit Teacher{% else %}Add Teacher{% endif %}</h3>
+
+<form method="post" enctype="multipart/form-data" novalidate>
+  {% csrf_token %}
+  <div class="row">
+    <div class="col-md-6">
+      <div class="mb-3">
+        <label class="form-label">Title</label>
+        {{ form.title }}
+        {% if form.title.errors %}<div class="text-danger small">{{ form.title.errors }}</div>{% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">First name</label>
+        {{ form.first_name }}
+        {% if form.first_name.errors %}<div class="text-danger small">{{ form.first_name.errors }}</div>{% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Last name</label>
+        {{ form.last_name }}
+        {% if form.last_name.errors %}<div class="text-danger small">{{ form.last_name.errors }}</div>{% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Profile photo</label><br>
+        {{ form.profile_photo }}
+        {% if form.profile_photo.errors %}<div class="text-danger small">{{ form.profile_photo.errors }}</div>{% endif %}
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Dob</label>
+          {{ form.dob }}
+          {% if form.dob.errors %}<div class="text-danger small">{{ form.dob.errors }}</div>{% endif %}
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Phone</label>
+          {{ form.phone }}
+          {% if form.phone.errors %}<div class="text-danger small">{{ form.phone.errors }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">WhatsApp</label>
+        {{ form.whatsapp }}
+        {% if form.whatsapp.errors %}<div class="text-danger small">{{ form.whatsapp.errors }}</div>{% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        {{ form.email }}
+        {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors }}</div>{% endif %}
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="mb-3">
+        <label class="form-label">User (optional)</label>
+        {{ form.user }}
+        <small class="text-muted d-block">If you want to link this teacher to an existing auth user account, choose it here. Leave blank otherwise.</small>
+        {% if form.user.errors %}<div class="text-danger small">{{ form.user.errors }}</div>{% endif %}
+      </div>
+
+      <div class="mb-3 form-check">
+        {# render checkbox first then label so bootstrap spacing is correct #}
+        {{ form.is_active }} 
+        <label class="form-check-label ms-2" for="{{ form.is_active.id_for_label }}">Is active</label>
+        {% if form.is_active.errors %}<div class="text-danger small">{{ form.is_active.errors }}</div>{% endif %}
+      </div>
+
+      <div class="mt-4">
+        <button class="btn btn-primary">{% if form.instance.pk %}Save changes{% else %}Save{% endif %}</button>
+        <a class="btn btn-secondary" href="{% url 'academic_core:teacher_list' %}">Cancel</a>
+      </div>
+    </div>
+  </div>
+</form>
+
+<script>
+  // ensure checkboxes use bootstrap class when rendered (sometimes Django widget attrs don't add expected wrapper)
+  (function(){
+    const chk = document.querySelector('input[type="checkbox"][name="{{ form.is_active.html_name }}"]');
+    if (chk) {
+      chk.classList.add('form-check-input');
+      // ensure label has spacing
+      const lbl = document.querySelector('label[for="'+chk.id+'"]');
+      if (lbl) lbl.classList.add('form-check-label');
+    }
+  })();
+</script>
+{% endblock %}

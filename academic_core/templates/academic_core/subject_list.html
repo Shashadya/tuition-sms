@@ -1,0 +1,56 @@
+{% extends 'academic_core/base.html' %}
+{% block title %}Subjects{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3>Subjects</h3>
+
+  <div>
+    {% if request.user.is_admin or request.user.is_staff_user %}
+      <a class="btn btn-primary" href="{% url 'academic_core:subject_create' %}">Add Subject</a>
+    {% endif %}
+    {% if request.user.is_admin or request.user.is_staff_user %}
+      <a class="btn btn-outline-secondary" href="{% url 'academic_core:subjectassign_list' %}">Assignments</a>
+      <a class="btn btn-outline-info" href="{% url 'academic_core:subjectassign_create' %}">Assign Subject</a>
+    {% endif %}
+  </div>
+</div>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Subject ID</th>
+      <th>Name</th>
+      <th>Description</th>
+      <th style="width:220px">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for s in subjects %}
+    <tr>
+      <td>{{ s.subject_id }}</td>
+      <td>{{ s.name }}</td>
+      <td>{{ s.description|truncatechars:80 }}</td>
+      <td>
+        {% if request.user.is_admin or request.user.is_staff_user %}
+          <a class="btn btn-sm btn-outline-secondary" href="{% url 'academic_core:subject_update' s.pk %}">Edit</a>
+        {% endif %}
+
+        {% if request.user.is_admin %}
+          <form class="d-inline" method="post" action="{% url 'academic_core:subject_delete' s.pk %}" onsubmit="return confirm('Delete subject {{ s.name }}?');">
+            {% csrf_token %}
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        {% endif %}
+
+        {% if request.user.is_admin or request.user.is_staff_user %}
+          <a class="btn btn-sm btn-outline-primary" href="{% url 'academic_core:subjectassign_create' %}?subject={{ s.pk }}">Assign</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="4">No subjects yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

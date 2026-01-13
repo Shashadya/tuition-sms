@@ -1,0 +1,24 @@
+{% extends "academic_core/base.html" %}
+{% block title %}Confirm Delete Teacher{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h4 class="card-title text-danger">Confirm delete teacher</h4>
+    <p>Deleting a teacher is permanent. Classes and assignments referencing this teacher may be affected.</p>
+
+    <table class="table table-sm">
+      <tr><th>Name</th><td>{{ object.title }} {{ object.first_name }} {{ object.last_name }}</td></tr>
+      <tr><th>Email</th><td>{{ object.email|default:"—" }}</td></tr>
+      <tr><th>Phone</th><td>{{ object.phone|default:"—" }}</td></tr>
+      <tr><th>Active</th><td>{% if object.is_active %}Yes{% else %}No{% endif %}</td></tr>
+    </table>
+
+    <form method="post" class="d-inline">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Yes — delete teacher</button>
+    </form>
+    <a href="{% url 'academic_core:teacher_detail' object.pk %}" class="btn btn-secondary">Cancel</a>
+  </div>
+</div>
+{% endblock %}

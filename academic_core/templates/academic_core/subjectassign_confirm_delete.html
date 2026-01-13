@@ -1,0 +1,16 @@
+{% extends 'academic_core/base.html' %}
+{% block title %}Confirm Delete Assignment{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h4 class="card-title text-danger">Confirm delete assignment</h4>
+    <p>Are you sure you want to delete assignment <strong>{{ object.assign_id }}</strong>?</p>
+    <p><strong>Subject:</strong> {{ object.subject }}<br><strong>Teacher:</strong> {{ object.teacher }}</p>
+
+    <form method="post" class="d-inline">{% csrf_token %}
+      <button type="submit" class="btn btn-danger">Yes — delete</button>
+    </form>
+    <a href="{% url 'academic_core:subjectassign_list' %}" class="btn btn-secondary">Cancel</a>
+  </div>
+</div>
+{% endblock %}
